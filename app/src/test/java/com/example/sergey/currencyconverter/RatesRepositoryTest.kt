@@ -15,12 +15,15 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnit
+import timber.log.Timber
+import java.lang.Exception
 import java.util.*
 
-class RatesRepositoryTest {
+class RatesRepositoryTest : BaseTest() {
 
     private lateinit var ratesDTO: RatesDTO
     private lateinit var ratesVO: RatesVO
+    private lateinit var ratesEmptyMap: RatesDTO
 
     companion object {
         @JvmStatic
@@ -54,18 +57,38 @@ class RatesRepositoryTest {
                 ratesMap = enumMap
         )
 
+        ratesEmptyMap = RatesDTO(
+                base = "EUR",
+                date = "2018-09-06",
+                ratesMap = EnumMap<Rates, Float>(Rates::class.java)
+        )
+
         ratesVO = RatesVOMapper().apply(ratesDTO)
     }
 
     @Test
-    fun checkRatesRepositoryObservableWithNonNullValue() {
+    fun checkRatesRepositoryCompletableFinishesSuccessfully() {
         `when`(api.getLatestRates("EUR")).thenReturn(Observable.fromArray(ratesDTO))
 
-        ratesRepository.getRatesRepository(Rates.EUR).subscribe {
-            assert(it.ratesMap?.containsKey(Rates.EUR) == false)
-            assert(it.ratesMap?.containsKey(Rates.BGN) == true)
-            assert(it.ratesMap?.get(Rates.BGN) == BGN_VAL)
-            assert(it.date == "2018-09-06")
-        }
+        var error: Throwable? = null
+
+        ratesRepository
+                .getRatesRepository(Rates.EUR)
+                .subscribe({}, {error = it})
+
+        assert(error == null)
+    }
+
+    @Test
+    fun checkRatesRepositoryCompletableFinishesWithError() {
+        `when`(api.getLatestRates("EUR")).thenReturn(Observable.fromArray(ratesEmptyMap))
+
+        var error: Throwable? = null
+
+        ratesRepository
+                .getRatesRepository(Rates.EUR)
+                .subscribe({}, {error = it})
+
+        assert(error != null)
     }
 }
