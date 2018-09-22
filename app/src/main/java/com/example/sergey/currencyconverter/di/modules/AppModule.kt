@@ -3,6 +3,10 @@ package com.example.sergey.currencyconverter.di.modules
 import android.app.Application
 import com.example.sergey.currencyconverter.BuildConfig
 import com.example.sergey.currencyconverter.api.Api
+import com.example.sergey.currencyconverter.api.rates.RatesDTO
+import com.example.sergey.currencyconverter.other.RatesJsonDeserializer
+import com.example.sergey.currencyconverter.repository.rates.RatesRepository
+import com.example.sergey.currencyconverter.repository.rates.RatesRepositoryImpl
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
@@ -16,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
-class AppModule(val application: Application) {
+class AppModule(private val application: Application) {
 
     @Provides
     @Singleton
@@ -45,7 +49,9 @@ class AppModule(val application: Application) {
                 .cache(cache)
                 .build()
 
-        val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").setLenient().create()
+        val gson = GsonBuilder()
+                .registerTypeAdapter(RatesDTO::class.java, RatesJsonDeserializer())
+                .create()
 
         return Retrofit.Builder()
                 .baseUrl(BuildConfig.BASE_URL)
@@ -55,4 +61,10 @@ class AppModule(val application: Application) {
                 .build()
                 .create(Api::class.java)
     }
+
+    ///////////////////REPOSITORIES//////////////////////
+
+    @Provides
+    @Singleton
+    fun provideRatesRepository(api: Api): RatesRepository = RatesRepositoryImpl(api)
 }

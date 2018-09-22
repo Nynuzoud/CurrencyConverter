@@ -28,8 +28,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_info_outline_black_24dp" />
-                            <entry key="sourceFile" value="D:\Downloads\flags\united-states-of-america.svg" />
+                            <entry key="assetSourceType" value="FILE" />
+                            <entry key="outputName" value="ic_european_union" />
+                            <entry key="sourceFile" value="D:\Downloads\flags\european-union.svg" />
                           </map>
                         </option>
                       </PersistentState>
