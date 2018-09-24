@@ -2,15 +2,16 @@ package com.example.sergey.currencyconverter.di.modules
 
 import android.app.Application
 import com.example.sergey.currencyconverter.BuildConfig
-import com.example.sergey.currencyconverter.api.Api
-import com.example.sergey.currencyconverter.api.rates.RatesDTO
 import com.example.sergey.currencyconverter.other.RatesJsonDeserializer
-import com.example.sergey.currencyconverter.repository.rates.RatesRepository
-import com.example.sergey.currencyconverter.repository.rates.RatesRepositoryImpl
+import com.example.sergey.currencyconverter.other.preferences.Preferences
+import com.example.sergey.currencyconverter.other.preferences.PreferencesImpl
+import com.example.sergey.currencyconverter.repository.api.Api
+import com.example.sergey.currencyconverter.repository.api.rates.RatesDTO
+import com.example.sergey.currencyconverter.repository.interactor.rates.RatesRepository
+import com.example.sergey.currencyconverter.repository.interactor.rates.RatesRepositoryImpl
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
-import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -19,7 +20,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-@Module
+@Module(includes = [ViewModelModule::class])
 class AppModule(private val application: Application) {
 
     @Provides
@@ -39,14 +40,10 @@ class AppModule(private val application: Application) {
             logging.level = HttpLoggingInterceptor.Level.HEADERS
         }
 
-        val cacheSize: Long = 5 * 1024 * 1024 //5MB
-        val cache = Cache(application.cacheDir, cacheSize)
-
         val client = OkHttpClient.Builder()
                 .readTimeout(30, TimeUnit.SECONDS)
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(logging)
-                .cache(cache)
                 .build()
 
         val gson = GsonBuilder()
@@ -61,6 +58,12 @@ class AppModule(private val application: Application) {
                 .build()
                 .create(Api::class.java)
     }
+
+    ///////////////////PREFERENCES///////////////////////
+
+    @Singleton
+    @Provides
+    fun providePreferences(): Preferences = PreferencesImpl(application)
 
     ///////////////////REPOSITORIES//////////////////////
 

@@ -1,6 +1,6 @@
-package com.example.sergey.currencyconverter.api
+package com.example.sergey.currencyconverter.repository.api
 
-import com.example.sergey.currencyconverter.api.rates.RatesDTO
+import com.example.sergey.currencyconverter.repository.api.rates.RatesDTO
 import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query

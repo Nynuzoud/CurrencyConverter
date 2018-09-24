@@ -1,8 +1,8 @@
 package com.example.sergey.currencyconverter
 
-import com.example.sergey.currencyconverter.api.rates.RatesDTO
 import com.example.sergey.currencyconverter.other.RatesJsonDeserializer
-import com.example.sergey.currencyconverter.ui.rates.Rates
+import com.example.sergey.currencyconverter.repository.api.rates.RatesDTO
+import com.example.sergey.currencyconverter.ui.rates.CurrenciesEnum
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.junit.Assert.assertNotNull
@@ -27,9 +27,9 @@ class RatesJsonDeserializerTest {
 
         val ratesDTO = gson.fromJson(inputJson, RatesDTO::class.java)
         assertNotNull(ratesDTO)
-        assert(ratesDTO.base == "EUR")
+        assert(ratesDTO.base == CurrenciesEnum.EUR)
         assert(ratesDTO.date == "2018-09-06")
-        assert(ratesDTO.ratesMap.containsKey(Rates.AUD))
-        assert(ratesDTO.ratesMap.containsKey(Rates.ILS))
+        assert(ratesDTO.ratesMap.containsKey(CurrenciesEnum.AUD))
+        assert(ratesDTO.ratesMap.containsKey(CurrenciesEnum.ILS))
     }
 }
