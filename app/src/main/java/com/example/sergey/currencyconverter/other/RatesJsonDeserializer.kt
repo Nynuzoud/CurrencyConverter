@@ -16,17 +16,17 @@ class RatesJsonDeserializer : JsonDeserializer<RatesDTO> {
     @Throws(JsonParseException::class)
     override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): RatesDTO? {
 
-        val enumMap = EnumMap<CurrenciesEnum, Float>(CurrenciesEnum::class.java)
+        val enumMap = EnumMap<CurrenciesEnum, String>(CurrenciesEnum::class.java)
 
         val base = json?.asJsonObject?.get("base")?.asString
         val date = json?.asJsonObject?.get("date")?.asString
         val rates = json?.asJsonObject?.get("rates") as JsonObject
         for (rate in rates.entrySet()) {
             var rateEnum: CurrenciesEnum? = null
-            var rateValue: Float? = null
+            var rateValue: String? = null
             try {
                 rateEnum = CurrenciesEnum.valueOf(rate.key)
-                rateValue = rate.value.asFloat
+                rateValue = rate.value.asString
             } catch (e: Exception) {
                 Timber.d(e)
             }

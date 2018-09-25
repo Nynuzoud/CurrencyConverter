@@ -9,8 +9,8 @@ import java.util.*
 
 class RatesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var _data: LinkedHashMap<CurrenciesEnum, Float> = LinkedHashMap()
-    var data: LinkedHashMap<CurrenciesEnum, Float>?
+    private var _data: LinkedHashMap<CurrenciesEnum, String> = LinkedHashMap()
+    var data: LinkedHashMap<CurrenciesEnum, String>?
         get() = _data
         set(value) {
             if (value != null) _data = value
@@ -29,7 +29,7 @@ class RatesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as RatesViewHolder).bind(_data.keys.elementAt(position), _data.values.elementAt(position), position == 0)
+        (holder as RatesViewHolder).bind(_data.keys.elementAt(position), _data.values.elementAt(position))
     }
 
     override fun getItemCount(): Int = _data.size

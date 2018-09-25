@@ -14,7 +14,6 @@ enum class CurrenciesEnum(@DrawableRes val imageRes: Int, @StringRes val currenc
     CNY(R.drawable.ic_china, R.string.currency_cny),
     CZK(R.drawable.ic_czech_republic, R.string.currency_czk),
     DKK(R.drawable.ic_denmark, R.string.currency_dkk),
-    EUR(R.drawable.ic_european_union, R.string.currency_eur),
     GBP(R.drawable.ic_united_kingdom, R.string.currency_gbp),
     HKD(R.drawable.ic_hong_kong, R.string.currency_hkd),
     HRK(R.drawable.ic_croatia, R.string.currency_hrk),
@@ -38,7 +37,7 @@ enum class CurrenciesEnum(@DrawableRes val imageRes: Int, @StringRes val currenc
     THB(R.drawable.ic_thailand, R.string.currency_thb),
     TRY(R.drawable.ic_turkey, R.string.currency_try),
     USD(R.drawable.ic_united_states_of_america, R.string.currency_usd),
-    ZAR(R.drawable.ic_south_africa, R.string.currency_zar)
-
+    ZAR(R.drawable.ic_south_africa, R.string.currency_zar),
+    EUR(R.drawable.ic_european_union, R.string.currency_eur)
 
 }

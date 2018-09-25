@@ -40,13 +40,13 @@ class RatesRepositoryTest : BaseTest() {
     @InjectMocks
     lateinit var ratesRepository: RatesRepositoryImpl
 
-    private val AUD_VAL = 1.6191f
-    private val BGN_VAL = 1.9591f
-    private val BRL_VAL = 4.7998f
+    private val AUD_VAL = "1.61"
+    private val BGN_VAL = "1.95"
+    private val BRL_VAL = "4.79"
 
     @Before
     fun init() {
-        val enumMap = EnumMap<CurrenciesEnum, Float>(CurrenciesEnum::class.java)
+        val enumMap = EnumMap<CurrenciesEnum, String>(CurrenciesEnum::class.java)
         enumMap[CurrenciesEnum.AUD] = AUD_VAL
         enumMap[CurrenciesEnum.BGN] = BGN_VAL
         enumMap[CurrenciesEnum.BRL] = BRL_VAL
@@ -60,7 +60,7 @@ class RatesRepositoryTest : BaseTest() {
         ratesEmptyMap = RatesDTO(
                 base = CurrenciesEnum.EUR,
                 date = "2018-09-06",
-                ratesMap = EnumMap<CurrenciesEnum, Float>(CurrenciesEnum::class.java)
+                ratesMap = EnumMap<CurrenciesEnum, String>(CurrenciesEnum::class.java)
         )
 
         rates = RatesMapper().apply(ratesDTO)
@@ -85,7 +85,7 @@ class RatesRepositoryTest : BaseTest() {
 
     @Test
     fun checkRatesRepositoryCompletableFinishesWithError() {
-        `when`(api.getLatestRates("EUR")).thenReturn(Observable.just(ratesEmptyMap))
+        `when`(api.getLatestRates(CurrenciesEnum.EUR.name)).thenReturn(Observable.just(ratesEmptyMap))
 
         var result: Rates? = null
         var error: Throwable? = null

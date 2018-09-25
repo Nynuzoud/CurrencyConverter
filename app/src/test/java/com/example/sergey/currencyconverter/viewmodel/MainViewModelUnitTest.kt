@@ -13,6 +13,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnit
+import java.math.BigDecimal
 import java.util.*
 
 @RunWith(JUnit4::class)
@@ -23,9 +24,9 @@ class MainViewModelUnitTest {
 
     private lateinit var rates: Rates
 
-    private val AUD_VAL = 1.6191f
-    private val BGN_VAL = 1.9591f
-    private val BRL_VAL = 1.7998f
+    private val AUD_VAL = "1.61"
+    private val BGN_VAL = "1.95"
+    private val BRL_VAL = "1.79"
 
     private val appComponent = mock(AppComponent::class.java)
     private val ratesRepository = mock(RatesRepository::class.java)
@@ -35,7 +36,7 @@ class MainViewModelUnitTest {
     @Before
     fun init() {
 
-        val enumMap = EnumMap<CurrenciesEnum, Float>(CurrenciesEnum::class.java)
+        val enumMap = EnumMap<CurrenciesEnum, String>(CurrenciesEnum::class.java)
         enumMap[CurrenciesEnum.AUD] = AUD_VAL
         enumMap[CurrenciesEnum.BGN] = BGN_VAL
         enumMap[CurrenciesEnum.BRL] = BRL_VAL
@@ -64,7 +65,7 @@ class MainViewModelUnitTest {
     @Test
     fun checkUpdateConvertedRatesReturnsUpdatedValues() {
 
-        var multiplier = 1f
+        var multiplier = "1"
         viewModel.convertedRatesMap = viewModel.generateConvertedRatesMap(rates.base, rates.ratesEnumMap)
 
         val resultMap = viewModel.updateConvertedRates(rates, viewModel.convertedRatesMap, multiplier)
@@ -73,11 +74,11 @@ class MainViewModelUnitTest {
         assert(resultMap[CurrenciesEnum.BGN] == BGN_VAL)
         assert(resultMap[CurrenciesEnum.BRL] == BRL_VAL)
 
-        val audVal2 = 2.4815f
-        val bgnVal2 = 2.8186f
-        val brlVal2 = 2.1368f
+        val audVal2 = "2.48"
+        val bgnVal2 = "2.81"
+        val brlVal2 = "2.13"
 
-        val enumMap = EnumMap<CurrenciesEnum, Float>(CurrenciesEnum::class.java)
+        val enumMap = EnumMap<CurrenciesEnum, String>(CurrenciesEnum::class.java)
         enumMap[CurrenciesEnum.AUD] = audVal2
         enumMap[CurrenciesEnum.BGN] = bgnVal2
         enumMap[CurrenciesEnum.BRL] = brlVal2
@@ -93,18 +94,22 @@ class MainViewModelUnitTest {
         assert(resultMap2[CurrenciesEnum.BGN] == bgnVal2)
         assert(resultMap2[CurrenciesEnum.BRL] == brlVal2)
 
-        multiplier = 4.34f
+        multiplier = "4.34"
 
         val resultMap3 = viewModel.updateConvertedRates(rates2, viewModel.convertedRatesMap, multiplier)
 
-        assert(resultMap3[CurrenciesEnum.AUD] == audVal2 * multiplier)
-        assert(resultMap3[CurrenciesEnum.BGN] == bgnVal2 * multiplier)
-        assert(resultMap3[CurrenciesEnum.BRL] == brlVal2 * multiplier)
+        val audResult = BigDecimal(audVal2).multiply(BigDecimal(multiplier)).setScale(Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()
+        val bgnResult = BigDecimal(bgnVal2).multiply(BigDecimal(multiplier)).setScale(Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()
+        val brlResult = BigDecimal(brlVal2).multiply(BigDecimal(multiplier)).setScale(Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()
+
+        assert(resultMap3[CurrenciesEnum.AUD] == audResult)
+        assert(resultMap3[CurrenciesEnum.BGN] == bgnResult)
+        assert(resultMap3[CurrenciesEnum.BRL] == brlResult)
     }
 
     @Test
     fun checkCurrencyMovedToTop() {
-        val multiplier = 4f
+        val multiplier = "4"
 
         viewModel.convertedRatesMap = viewModel.generateConvertedRatesMap(rates.base, rates.ratesEnumMap)
 
@@ -116,6 +121,5 @@ class MainViewModelUnitTest {
         assert(viewModel.convertedRatesMap.keys.indexOf(CurrenciesEnum.BGN) == 0)
         assert(viewModel.convertedRatesMap[CurrenciesEnum.BGN] == BGN_VAL)
         assert(viewModel.convertedRatesMap.keys.indexOf(CurrenciesEnum.EUR) == 1)
-        assert(viewModel.convertedRatesMap[CurrenciesEnum.EUR] == multiplier)
     }
 }

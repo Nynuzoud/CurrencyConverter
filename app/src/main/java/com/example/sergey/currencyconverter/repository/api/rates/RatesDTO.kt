@@ -6,5 +6,5 @@ data class RatesDTO(
 
         var base: CurrenciesEnum,
         var date: String? = null,
-        val ratesMap: MutableMap<CurrenciesEnum, Float>
+        val ratesMap: MutableMap<CurrenciesEnum, String>
 )

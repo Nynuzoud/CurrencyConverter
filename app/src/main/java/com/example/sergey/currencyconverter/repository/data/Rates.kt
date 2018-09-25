@@ -1,6 +1,7 @@
 package com.example.sergey.currencyconverter.repository.data
 
 import com.example.sergey.currencyconverter.ui.rates.CurrenciesEnum
+import java.math.RoundingMode
 
 /**
  * Object needed to represent data to UI.
@@ -11,10 +12,12 @@ import com.example.sergey.currencyconverter.ui.rates.CurrenciesEnum
 data class Rates(
 
         var base: CurrenciesEnum,
-        val ratesEnumMap: MutableMap<CurrenciesEnum, Float>
+        val ratesEnumMap: MutableMap<CurrenciesEnum, String>
 ) {
 
     companion object {
-        val DEFAULT_MULTIPLIER = 1f
+        val DEFAULT_MULTIPLIER = "1"
+        val DEFAULT_ROUND_SCALE = 2
+        val DEFAULT_ROUNDING = RoundingMode.HALF_UP
     }
 }

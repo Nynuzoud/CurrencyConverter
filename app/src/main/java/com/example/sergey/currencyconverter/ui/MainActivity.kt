@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.example.sergey.currencyconverter.R
 import com.example.sergey.currencyconverter.di.ComponentsHolder
 import com.example.sergey.currencyconverter.ui.rates.CurrenciesEnum
+import com.example.sergey.currencyconverter.ui.rates.adapter.BaseRateTextWatcher
 import com.example.sergey.currencyconverter.ui.rates.adapter.RatesAdapter
 import com.example.sergey.currencyconverter.ui.rates.adapter.RatesAdapterListener
 import com.example.sergey.currencyconverter.viewmodel.ViewModelFactory
@@ -34,8 +35,10 @@ class MainActivity : AppCompatActivity() {
         loading.visibility = View.VISIBLE
 
         ratesAdapter.listener = RatesAdapterListenerImpl()
+        viewModel.baseTextWatcher.ratesAdapterListener = ratesAdapter.listener
         ratesAdapter.setHasStableIds(true)
         rates_recycler.adapter = ratesAdapter
+        //rates_recycler.setHasFixedSize(true)
 
         viewModel.convertedRatesLiveData.observe(this, Observer {
             ratesAdapter.data = it
@@ -55,18 +58,25 @@ class MainActivity : AppCompatActivity() {
 
     private inner class RatesAdapterListenerImpl : RatesAdapterListener {
 
-        override fun onItemClick(currencyEnum: CurrenciesEnum, currentValue: Float) {
+        override fun onItemClick(currencyEnum: CurrenciesEnum, currentValue: String) {
+            viewModel.removeTextWatchingView()
             viewModel.stopGettingRates()
             viewModel.updateBaseCurrency(currencyEnum, currentValue)
             viewModel.startGettingRates()
         }
 
-        override fun onItemMultiplierEdit(multiplier: Float) {
+        override fun onItemMultiplierEdit(multiplier: String) {
             viewModel.currencyMultiplier = multiplier
         }
 
         override fun onItemFocusChanged(hasFocus: Boolean) {
             viewModel.onItemFocusChanged(hasFocus)
+        }
+
+        override fun getTextWatcher(): BaseRateTextWatcher? = viewModel.baseTextWatcher
+
+        override fun setTextWatchingView(view: View) {
+            viewModel.textWatchingView = view
         }
     }
 }

@@ -1,20 +1,25 @@
 package com.example.sergey.currencyconverter.ui
 
+import android.os.Looper
+import android.view.View
+import android.widget.EditText
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.MutableLiveData
 import com.example.sergey.currencyconverter.di.components.AppComponent
-import com.example.sergey.currencyconverter.other.kotlinextensions.round
 import com.example.sergey.currencyconverter.other.preferences.Preferences
 import com.example.sergey.currencyconverter.repository.data.Rates
 import com.example.sergey.currencyconverter.repository.interactor.rates.RatesRepository
 import com.example.sergey.currencyconverter.testing.OpenForTesting
 import com.example.sergey.currencyconverter.ui.rates.CurrenciesEnum
+import com.example.sergey.currencyconverter.ui.rates.adapter.BaseRateTextWatcher
 import com.example.sergey.currencyconverter.viewmodel.BaseViewModel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.math.BigDecimal
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -28,25 +33,29 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
 
     var baseCurrency: CurrenciesEnum = CurrenciesEnum.EUR
     var currencyMultiplier = Rates.DEFAULT_MULTIPLIER
-    var convertedRatesMap: LinkedHashMap<CurrenciesEnum, Float> = LinkedHashMap(33, 1f)
-    val convertedRatesLiveData: MutableLiveData<LinkedHashMap<CurrenciesEnum, Float>> = MutableLiveData()
+
+    var convertedRatesMap: LinkedHashMap<CurrenciesEnum, String> = LinkedHashMap(CurrenciesEnum.values().size, 1f)
+    val convertedRatesLiveData: MutableLiveData<LinkedHashMap<CurrenciesEnum, String>> = MutableLiveData()
+
+    var baseTextWatcher: BaseRateTextWatcher = BaseRateTextWatcher()
+    var textWatchingView: View? = null
 
     init {
         applicationComponent.inject(this)
-
-        //baseCurrency = preferences.getBaseCurrency()
     }
 
     fun startGettingRates() {
         ratesDisposable = Observable
                 .interval(1, TimeUnit.SECONDS)
                 .flatMap {
+                    Timber.d((Looper.myLooper() == Looper.getMainLooper()).toString())
                     ratesRepository.getRatesRepository(baseCurrency)
                 }
                 .repeat()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
+
                     if (convertedRatesMap.isEmpty()) {
                         convertedRatesMap = generateConvertedRatesMap(it.base, it.ratesEnumMap)
                     }
@@ -63,6 +72,10 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
         unsubscribe(ratesDisposable)
     }
 
+    fun removeTextWatchingView() {
+        (textWatchingView as? EditText)?.removeTextChangedListener(baseTextWatcher)
+    }
+
     fun onItemFocusChanged(hasFocus: Boolean) {
         when (hasFocus) {
             true -> stopGettingRates()
@@ -70,7 +83,7 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
         }
     }
 
-    fun updateBaseCurrency(currencyEnum: CurrenciesEnum, currentValue: Float) {
+    fun updateBaseCurrency(currencyEnum: CurrenciesEnum, currentValue: String) {
 
         moveCurrencyToTopOfMap(currencyEnum, currentValue)
         convertedRatesLiveData.value = convertedRatesMap
@@ -84,13 +97,10 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
      * @param currencyEnum - [CurrenciesEnum] new base key
      * @param currentValue - [Float] old base key's value
      */
-    fun moveCurrencyToTopOfMap(currencyEnum: CurrenciesEnum, currentValue: Float) {
-
-        convertedRatesMap[baseCurrency] = currencyMultiplier
-        currencyMultiplier = currentValue
-        convertedRatesMap.remove(currencyEnum)
+    fun moveCurrencyToTopOfMap(currencyEnum: CurrenciesEnum, currentValue: String) {
 
         convertedRatesMap = generateConvertedRatesMap(currencyEnum, convertedRatesMap)
+        currencyMultiplier = currentValue
     }
 
     /**
@@ -101,10 +111,10 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
      * @return updatableMap with updated values
      */
     @VisibleForTesting
-    fun updateConvertedRates(rates: Rates, updatableMap: LinkedHashMap<CurrenciesEnum, Float>, multiplier: Float) : LinkedHashMap<CurrenciesEnum, Float> {
+    fun updateConvertedRates(rates: Rates, updatableMap: LinkedHashMap<CurrenciesEnum, String>, multiplier: String) : LinkedHashMap<CurrenciesEnum, String> {
 
         rates.ratesEnumMap.forEach { key, value ->
-            updatableMap[key] = (value * multiplier).round(2)
+            updatableMap[key] = BigDecimal(value).multiply(BigDecimal(multiplier)).setScale(Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()
         }
 
         return updatableMap
@@ -117,9 +127,9 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
      * @return ordered by default new ratesMap
      */
     @VisibleForTesting
-    fun generateConvertedRatesMap(base: CurrenciesEnum, ratesMap: MutableMap<CurrenciesEnum, Float>): LinkedHashMap<CurrenciesEnum, Float> {
-        val newRatesMap = LinkedHashMap<CurrenciesEnum, Float>()
-        newRatesMap[base] = currencyMultiplier
+    fun generateConvertedRatesMap(base: CurrenciesEnum, ratesMap: MutableMap<CurrenciesEnum, String>): LinkedHashMap<CurrenciesEnum, String> {
+        val newRatesMap = LinkedHashMap<CurrenciesEnum, String>()
+        newRatesMap[base] = ratesMap[base] ?: currencyMultiplier
 
         ratesMap.forEach { key, value ->
             newRatesMap[key] = value
