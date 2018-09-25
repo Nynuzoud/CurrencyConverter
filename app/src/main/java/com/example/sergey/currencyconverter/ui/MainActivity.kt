@@ -7,7 +7,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.example.sergey.currencyconverter.R
 import com.example.sergey.currencyconverter.di.ComponentsHolder
-import com.example.sergey.currencyconverter.ui.rates.CurrenciesEnum
 import com.example.sergey.currencyconverter.ui.rates.adapter.BaseRateTextWatcher
 import com.example.sergey.currencyconverter.ui.rates.adapter.RatesAdapter
 import com.example.sergey.currencyconverter.ui.rates.adapter.RatesAdapterListener
@@ -38,11 +37,14 @@ class MainActivity : AppCompatActivity() {
         viewModel.baseTextWatcher.ratesAdapterListener = ratesAdapter.listener
         ratesAdapter.setHasStableIds(true)
         rates_recycler.adapter = ratesAdapter
-        //rates_recycler.setHasFixedSize(true)
+        rates_recycler.setHasFixedSize(true)
 
         viewModel.convertedRatesLiveData.observe(this, Observer {
-            ratesAdapter.data = it
-            loading.visibility = View.GONE
+            //simple check to avoid unexpected crashes
+            if (!rates_recycler.isComputingLayout) {
+                ratesAdapter.data = it
+                loading.visibility = View.GONE
+            }
         })
     }
 
@@ -58,10 +60,9 @@ class MainActivity : AppCompatActivity() {
 
     private inner class RatesAdapterListenerImpl : RatesAdapterListener {
 
-        override fun onItemClick(currencyEnum: CurrenciesEnum, currentValue: String) {
-            viewModel.removeTextWatchingView()
+        override fun onItemClick(adapterPosition: Int) {
             viewModel.stopGettingRates()
-            viewModel.updateBaseCurrency(currencyEnum, currentValue)
+            viewModel.updateBaseCurrency(adapterPosition)
             viewModel.startGettingRates()
         }
 
@@ -73,10 +74,10 @@ class MainActivity : AppCompatActivity() {
             viewModel.onItemFocusChanged(hasFocus)
         }
 
-        override fun getTextWatcher(): BaseRateTextWatcher? = viewModel.baseTextWatcher
-
-        override fun setTextWatchingView(view: View) {
-            viewModel.textWatchingView = view
+        override fun afterTextChanged() {
+            viewModel.startGettingRates()
         }
+
+        override fun getTextWatcher(): BaseRateTextWatcher? = viewModel.baseTextWatcher
     }
 }

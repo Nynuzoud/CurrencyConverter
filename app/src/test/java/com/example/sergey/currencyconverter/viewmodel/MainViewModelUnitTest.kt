@@ -66,9 +66,9 @@ class MainViewModelUnitTest {
     fun checkUpdateConvertedRatesReturnsUpdatedValues() {
 
         var multiplier = "1"
-        viewModel.convertedRatesMap = viewModel.generateConvertedRatesMap(rates.base, rates.ratesEnumMap)
+        viewModel.convertedRatesLiveData.value = viewModel.generateConvertedRatesMap(rates.base, rates.ratesEnumMap)
 
-        val resultMap = viewModel.updateConvertedRates(rates, viewModel.convertedRatesMap, multiplier)
+        val resultMap = viewModel.updateConvertedRates(rates, viewModel.convertedRatesLiveData.value!!, multiplier)
 
         assert(resultMap[CurrenciesEnum.AUD] == AUD_VAL)
         assert(resultMap[CurrenciesEnum.BGN] == BGN_VAL)
@@ -88,7 +88,7 @@ class MainViewModelUnitTest {
                 ratesEnumMap = enumMap
         )
 
-        val resultMap2 = viewModel.updateConvertedRates(rates2, viewModel.convertedRatesMap, multiplier)
+        val resultMap2 = viewModel.updateConvertedRates(rates2, viewModel.convertedRatesLiveData.value!!, multiplier)
 
         assert(resultMap2[CurrenciesEnum.AUD] == audVal2)
         assert(resultMap2[CurrenciesEnum.BGN] == bgnVal2)
@@ -96,7 +96,7 @@ class MainViewModelUnitTest {
 
         multiplier = "4.34"
 
-        val resultMap3 = viewModel.updateConvertedRates(rates2, viewModel.convertedRatesMap, multiplier)
+        val resultMap3 = viewModel.updateConvertedRates(rates2, viewModel.convertedRatesLiveData.value!!, multiplier)
 
         val audResult = BigDecimal(audVal2).multiply(BigDecimal(multiplier)).setScale(Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()
         val bgnResult = BigDecimal(bgnVal2).multiply(BigDecimal(multiplier)).setScale(Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()
@@ -105,21 +105,29 @@ class MainViewModelUnitTest {
         assert(resultMap3[CurrenciesEnum.AUD] == audResult)
         assert(resultMap3[CurrenciesEnum.BGN] == bgnResult)
         assert(resultMap3[CurrenciesEnum.BRL] == brlResult)
+
+
+        val resultMap4 = viewModel.updateConvertedRates(rates2, viewModel.convertedRatesLiveData.value!!, multiplier, updateBase = true)
+
+        assert(resultMap4[CurrenciesEnum.EUR] == multiplier)
+        assert(resultMap4[CurrenciesEnum.AUD] == audResult)
+        assert(resultMap4[CurrenciesEnum.BGN] == bgnResult)
+        assert(resultMap4[CurrenciesEnum.BRL] == brlResult)
     }
 
     @Test
     fun checkCurrencyMovedToTop() {
         val multiplier = "4"
 
-        viewModel.convertedRatesMap = viewModel.generateConvertedRatesMap(rates.base, rates.ratesEnumMap)
+        viewModel.convertedRatesLiveData.value = viewModel.generateConvertedRatesMap(rates.base, rates.ratesEnumMap)
 
         viewModel.currencyMultiplier = multiplier
         viewModel.baseCurrency = CurrenciesEnum.EUR
 
         viewModel.moveCurrencyToTopOfMap(CurrenciesEnum.BGN, BGN_VAL)
 
-        assert(viewModel.convertedRatesMap.keys.indexOf(CurrenciesEnum.BGN) == 0)
-        assert(viewModel.convertedRatesMap[CurrenciesEnum.BGN] == BGN_VAL)
-        assert(viewModel.convertedRatesMap.keys.indexOf(CurrenciesEnum.EUR) == 1)
+        assert(viewModel.convertedRatesLiveData.value!!.keys.indexOf(CurrenciesEnum.BGN) == 0)
+        assert(viewModel.convertedRatesLiveData.value!![CurrenciesEnum.BGN] == BGN_VAL)
+        assert(viewModel.convertedRatesLiveData.value!!.keys.indexOf(CurrenciesEnum.EUR) == 1)
     }
 }

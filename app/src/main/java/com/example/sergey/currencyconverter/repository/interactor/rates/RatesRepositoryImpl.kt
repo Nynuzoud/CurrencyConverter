@@ -16,23 +16,6 @@ class RatesRepositoryImpl(private val api: Api) : RatesRepository {
 
     override fun getRatesRepository(base: CurrenciesEnum): Observable<Rates> {
 
-//        return Observable
-//                .interval(1, TimeUnit.SECONDS)
-//                .flatMap {
-//                    api.getLatestRates(base.name)
-//                }
-//                .map(RatesMapper())
-//                .flatMap { rates ->
-//                    if (rates.ratesEnumMap.isNotEmpty()) {
-//                        Observable.just(rates)
-//                    } else {
-//                        Observable.error<Rates>(RatesException("CurrenciesEnum is null or rates map is null or empty"))
-//                    }
-//                }
-//                .repeat()
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-
         return api.getLatestRates(base.name)
                 .map(RatesMapper())
                 .flatMap {

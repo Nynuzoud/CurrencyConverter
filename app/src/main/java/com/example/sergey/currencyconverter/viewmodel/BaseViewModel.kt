@@ -8,12 +8,14 @@ abstract class BaseViewModel : ViewModel() {
 
     private val subscriptions = CompositeDisposable()
 
-    protected fun subscribe(disposable: Disposable) {
-        subscriptions.add(disposable)
+    protected fun subscribe(disposable: Disposable?) {
+        if (disposable != null) {
+            subscriptions.add(disposable)
+        }
     }
 
-    protected fun unsubscribe(disposable: Disposable) {
-        if (!disposable.isDisposed) {
+    protected fun unsubscribe(disposable: Disposable?) {
+        if (disposable != null && !disposable.isDisposed) {
             subscriptions.remove(disposable)
         }
     }

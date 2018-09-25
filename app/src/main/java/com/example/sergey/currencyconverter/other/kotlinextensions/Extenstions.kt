@@ -1,14 +1,5 @@
 package com.example.sergey.currencyconverter.other.kotlinextensions
 
-import java.math.BigDecimal
+import androidx.lifecycle.MutableLiveData
 
-fun CharSequence.toBigDecimalOrDefaultValue(defaultValue: BigDecimal? = null): BigDecimal {
-    var result = defaultValue ?: BigDecimal("1")
-
-    try {
-        result = BigDecimal(this.toString())
-    } catch (e: NumberFormatException) {
-
-    }
-    return result
-}
+fun <T : Any> MutableLiveData<T>.default(initialValue: T) = apply { value = initialValue }

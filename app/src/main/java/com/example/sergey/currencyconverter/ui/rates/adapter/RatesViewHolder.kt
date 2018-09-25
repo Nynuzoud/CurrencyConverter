@@ -18,23 +18,21 @@ class RatesViewHolder(itemView: View, private val ratesAdapterListener: RatesAda
 
         if (adapterPosition > 0) {
             itemView.setOnClickListener {
-                val currentValue = itemView.currency_edit.text.toString()
-                ratesAdapterListener?.onItemClick(currencyEnum, currentValue)
+                ratesAdapterListener?.onItemClick(adapterPosition)
             }
 
-            itemView.currency_edit.onFocusChangeListener = null
-            itemView.currency_edit.keyListener = null
-            ratesAdapterListener?.getTextWatcher()?.isEnabled = false
+            itemView.currency_edit.isFocusable = false
         } else {
 
-            itemView.currency_edit.addTextChangedListener(ratesAdapterListener?.getTextWatcher())
-            ratesAdapterListener?.getTextWatcher()?.isEnabled = true
-            ratesAdapterListener?.setTextWatchingView(itemView)
+            itemView.currency_edit.isFocusable = true
 
+            itemView.currency_edit.addTextChangedListener(ratesAdapterListener?.getTextWatcher())
             itemView.currency_edit.setOnFocusChangeListener { v, hasFocus ->
                 ratesAdapterListener?.onItemFocusChanged(hasFocus)
             }
+
         }
         itemView.currency_edit.setText(String.format("%s", rate))
+        itemView.currency_edit.setSelection(itemView.currency_edit.length())
     }
 }
