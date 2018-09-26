@@ -6,9 +6,5 @@ interface RatesAdapterListener {
 
     fun onItemMultiplierEdit(multiplier: String)
 
-    fun afterTextChanged()
-
-    fun onItemFocusChanged(hasFocus: Boolean)
-
     fun getTextWatcher(): BaseRateTextWatcher?
 }

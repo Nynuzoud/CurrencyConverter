@@ -32,6 +32,10 @@ class RatesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         (holder as RatesViewHolder).bind(_data.keys.elementAt(position), _data.values.elementAt(position))
     }
 
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
+        (holder as RatesViewHolder).updateBaseText()
+    }
+
     override fun getItemCount(): Int = _data.size
 
     override fun getItemId(position: Int): Long = _data.keys.elementAt(position).ordinal.toLong()

@@ -3,7 +3,6 @@ package com.example.sergey.currencyconverter.ui
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.MutableLiveData
 import com.example.sergey.currencyconverter.di.components.AppComponent
-import com.example.sergey.currencyconverter.other.preferences.Preferences
 import com.example.sergey.currencyconverter.repository.data.Rates
 import com.example.sergey.currencyconverter.repository.interactor.rates.RatesRepository
 import com.example.sergey.currencyconverter.testing.OpenForTesting
@@ -22,8 +21,7 @@ import javax.inject.Inject
 
 @OpenForTesting
 class MainViewModel @Inject constructor(applicationComponent: AppComponent,
-                                        private val ratesRepository: RatesRepository,
-                                        preferences: Preferences) : BaseViewModel() {
+                                        private val ratesRepository: RatesRepository) : BaseViewModel() {
 
     private var ratesDisposable: Disposable? = null
 
@@ -80,14 +78,6 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
         unsubscribe(ratesDisposable)
     }
 
-    fun onItemFocusChanged(hasFocus: Boolean) {
-        baseTextWatcher.isEnabled = hasFocus
-        when (hasFocus) {
-            true -> stopGettingRates()
-            false -> startGettingRates()
-        }
-    }
-
     /**
      * Generates expected rates to make a fast data replacement after user's changes
      * This rates will be updated with actual data after server response
@@ -116,6 +106,7 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
     }
 
     fun updateBaseCurrency(adapterPosition: Int) {
+        if (adapterPosition < 0) return
 
         val currencyEnum = convertedRatesLiveData.value?.keys?.elementAt(adapterPosition)
         val currentValue = convertedRatesLiveData.value?.get(currencyEnum)
@@ -164,7 +155,7 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
      */
     @VisibleForTesting
     fun generateConvertedRatesMap(base: CurrenciesEnum, ratesMap: MutableMap<CurrenciesEnum, String>): LinkedHashMap<CurrenciesEnum, String> {
-        val newRatesMap = LinkedHashMap<CurrenciesEnum, String>()
+        val newRatesMap = LinkedHashMap<CurrenciesEnum, String>(CurrenciesEnum.values().size, 1f)
         newRatesMap[base] = ratesMap[base] ?: _currencyMultiplier
 
         ratesMap.forEach { key, value ->

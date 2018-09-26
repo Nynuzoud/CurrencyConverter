@@ -2,7 +2,6 @@ package com.example.sergey.currencyconverter.di.components
 
 import android.app.Application
 import com.example.sergey.currencyconverter.di.modules.AppModule
-import com.example.sergey.currencyconverter.other.preferences.Preferences
 import com.example.sergey.currencyconverter.repository.api.Api
 import com.example.sergey.currencyconverter.ui.MainActivity
 import com.example.sergey.currencyconverter.ui.MainViewModel
@@ -15,7 +14,6 @@ interface AppComponent {
 
     val application: Application
     val api: Api
-    val preferences: Preferences
 
     fun inject(mainActivity: MainActivity)
     fun inject(mainViewModel: MainViewModel)

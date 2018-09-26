@@ -1,9 +1,7 @@
 package com.example.sergey.currencyconverter.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.MutableLiveData
 import com.example.sergey.currencyconverter.di.components.AppComponent
-import com.example.sergey.currencyconverter.other.preferences.Preferences
 import com.example.sergey.currencyconverter.repository.data.Rates
 import com.example.sergey.currencyconverter.repository.interactor.rates.RatesRepository
 import com.example.sergey.currencyconverter.ui.MainViewModel
@@ -14,9 +12,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import org.mockito.junit.MockitoJUnit
 import java.math.BigDecimal
 import java.util.*
+
 
 @RunWith(JUnit4::class)
 class MainViewModelUnitTest {
@@ -32,8 +30,7 @@ class MainViewModelUnitTest {
 
     private val appComponent = mock(AppComponent::class.java)
     private val ratesRepository = mock(RatesRepository::class.java)
-    private val preferences = mock(Preferences::class.java)
-    private var viewModel = MainViewModel(appComponent, ratesRepository, preferences)
+    private var viewModel = MainViewModel(appComponent, ratesRepository)
 
     @Before
     fun init() {

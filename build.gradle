@@ -2,12 +2,12 @@
 
 buildscript {
     ext {
-        kotlin_version = '1.2.61'
-        androidx_version = '1.0.0-rc02'
+        kotlin_version = '1.2.71'
+        androidx_version = '1.0.0'
         dagger_version = '2.15'
         okhttp_version = '3.10.0'
         retrofit_version = '2.3.0'
-        lifecycle_version = '1.1.1'
+        lifecycle_version = '2.0.0'
         timber_version = '4.7.1'
         rxjava_version = '2.2.0'
         rxandroid_version = '2.0.2'

@@ -5,6 +5,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.sergey.currencyconverter.R
 import com.example.sergey.currencyconverter.di.ComponentsHolder
 import com.example.sergey.currencyconverter.ui.rates.adapter.BaseRateTextWatcher
@@ -63,19 +64,12 @@ class MainActivity : AppCompatActivity() {
         override fun onItemClick(adapterPosition: Int) {
             viewModel.stopGettingRates()
             viewModel.updateBaseCurrency(adapterPosition)
+            (rates_recycler.layoutManager as LinearLayoutManager).scrollToPosition(0)
             viewModel.startGettingRates()
         }
 
         override fun onItemMultiplierEdit(multiplier: String) {
             viewModel.currencyMultiplier = multiplier
-        }
-
-        override fun onItemFocusChanged(hasFocus: Boolean) {
-            viewModel.onItemFocusChanged(hasFocus)
-        }
-
-        override fun afterTextChanged() {
-            viewModel.startGettingRates()
         }
 
         override fun getTextWatcher(): BaseRateTextWatcher? = viewModel.baseTextWatcher

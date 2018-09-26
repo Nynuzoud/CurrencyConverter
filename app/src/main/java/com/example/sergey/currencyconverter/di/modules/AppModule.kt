@@ -3,8 +3,6 @@ package com.example.sergey.currencyconverter.di.modules
 import android.app.Application
 import com.example.sergey.currencyconverter.BuildConfig
 import com.example.sergey.currencyconverter.other.RatesJsonDeserializer
-import com.example.sergey.currencyconverter.other.preferences.Preferences
-import com.example.sergey.currencyconverter.other.preferences.PreferencesImpl
 import com.example.sergey.currencyconverter.repository.api.Api
 import com.example.sergey.currencyconverter.repository.api.rates.RatesDTO
 import com.example.sergey.currencyconverter.repository.interactor.rates.RatesRepository
@@ -58,12 +56,6 @@ class AppModule(private val application: Application) {
                 .build()
                 .create(Api::class.java)
     }
-
-    ///////////////////PREFERENCES///////////////////////
-
-    @Singleton
-    @Provides
-    fun providePreferences(): Preferences = PreferencesImpl(application)
 
     ///////////////////REPOSITORIES//////////////////////
 

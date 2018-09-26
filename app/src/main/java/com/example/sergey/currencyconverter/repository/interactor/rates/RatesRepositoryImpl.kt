@@ -8,8 +8,7 @@ import com.example.sergey.currencyconverter.ui.rates.CurrenciesEnum
 import io.reactivex.Observable
 
 /**
- * Repository that handles [RatesDTO]
- * Methods return completable and write data to cache
+ * Repository that handles [com.example.sergey.currencyconverter.repository.api.rates.RatesDTO]
  */
 
 class RatesRepositoryImpl(private val api: Api) : RatesRepository {
