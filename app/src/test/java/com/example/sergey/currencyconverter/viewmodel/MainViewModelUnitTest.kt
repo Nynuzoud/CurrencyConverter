@@ -1,5 +1,7 @@
 package com.example.sergey.currencyconverter.viewmodel
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.MutableLiveData
 import com.example.sergey.currencyconverter.di.components.AppComponent
 import com.example.sergey.currencyconverter.other.preferences.Preferences
 import com.example.sergey.currencyconverter.repository.data.Rates
@@ -20,7 +22,7 @@ import java.util.*
 class MainViewModelUnitTest {
 
     @get:Rule
-    val mockitoRule = MockitoJUnit.rule()
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var rates: Rates
 
@@ -107,7 +109,7 @@ class MainViewModelUnitTest {
         assert(resultMap3[CurrenciesEnum.BRL] == brlResult)
 
 
-        val resultMap4 = viewModel.updateConvertedRates(rates2, viewModel.convertedRatesLiveData.value!!, multiplier, updateBase = true)
+        val resultMap4 = viewModel.updateConvertedRates(rates2, viewModel.convertedRatesLiveData.value!!, multiplier)
 
         assert(resultMap4[CurrenciesEnum.EUR] == multiplier)
         assert(resultMap4[CurrenciesEnum.AUD] == audResult)
@@ -119,15 +121,30 @@ class MainViewModelUnitTest {
     fun checkCurrencyMovedToTop() {
         val multiplier = "4"
 
-        viewModel.convertedRatesLiveData.value = viewModel.generateConvertedRatesMap(rates.base, rates.ratesEnumMap)
-
         viewModel.currencyMultiplier = multiplier
         viewModel.baseCurrency = CurrenciesEnum.EUR
+        viewModel.convertedRatesLiveData.value = viewModel.generateConvertedRatesMap(rates.base, rates.ratesEnumMap)
 
         viewModel.moveCurrencyToTopOfMap(CurrenciesEnum.BGN, BGN_VAL)
 
         assert(viewModel.convertedRatesLiveData.value!!.keys.indexOf(CurrenciesEnum.BGN) == 0)
         assert(viewModel.convertedRatesLiveData.value!![CurrenciesEnum.BGN] == BGN_VAL)
         assert(viewModel.convertedRatesLiveData.value!!.keys.indexOf(CurrenciesEnum.EUR) == 1)
+    }
+
+    @Test
+    fun ratesArePredictingSuccessfully() {
+        viewModel.rates = rates
+        viewModel.baseCurrency = CurrenciesEnum.BGN
+
+        rates = viewModel.generatePredictedRates()
+
+        val rateEur = BigDecimal("1").divide(BigDecimal(BGN_VAL), Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()
+        val rateAud = BigDecimal(AUD_VAL).divide(BigDecimal(BGN_VAL), Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()
+        val rateBrl = BigDecimal(BRL_VAL).divide(BigDecimal(BGN_VAL), Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()
+
+        assert(rates.ratesEnumMap[CurrenciesEnum.EUR] == rateEur)
+        assert(rates.ratesEnumMap[CurrenciesEnum.AUD] == rateAud)
+        assert(rates.ratesEnumMap[CurrenciesEnum.BRL] == rateBrl)
     }
 }

@@ -16,6 +16,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.math.BigDecimal
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -32,11 +33,15 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
         get() = _currencyMultiplier
         set(value) {
             _currencyMultiplier = value
+            if (baseCurrency != rates?.base) {
+                rates = generatePredictedRates()
+            }
             convertedRatesLiveData.value = updateConvertedRates(rates
-                    ?: return, convertedRatesLiveData.value ?: return, value, updateBase = true)
+                    ?: return, convertedRatesLiveData.value ?: return, value)
         }
 
-    private var rates: Rates? = null
+    @VisibleForTesting
+    var rates: Rates? = null
     val convertedRatesLiveData = MutableLiveData<LinkedHashMap<CurrenciesEnum, String>>()
     var baseTextWatcher: BaseRateTextWatcher = BaseRateTextWatcher()
 
@@ -60,7 +65,7 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
                     }
                     val map = convertedRatesLiveData.value
                     if (map != null) {
-                        convertedRatesLiveData.value = updateConvertedRates(it, map, _currencyMultiplier, updateBase = true)
+                        convertedRatesLiveData.value = updateConvertedRates(it, map, _currencyMultiplier)
                     }
                     rates = it
                 }, {
@@ -81,6 +86,33 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
             true -> stopGettingRates()
             false -> startGettingRates()
         }
+    }
+
+    /**
+     * Generates expected rates to make a fast data replacement after user's changes
+     * This rates will be updated with actual data after server response
+     * @return [Rates]
+     */
+    @VisibleForTesting
+    fun generatePredictedRates(): Rates {
+        val ratesEnumMap = EnumMap<CurrenciesEnum, String>(CurrenciesEnum::class.java)
+        val newCurrencyRate = rates?.ratesEnumMap?.get(baseCurrency) ?: "1"
+        CurrenciesEnum.values().forEach {
+            if (it != baseCurrency) {
+                val oldRateValue = rates?.ratesEnumMap?.get(it) ?: "1"
+
+                ratesEnumMap[it] = BigDecimal(oldRateValue)
+                        .divide(BigDecimal(newCurrencyRate),
+                                Rates.DEFAULT_ROUND_SCALE,
+                                Rates.DEFAULT_ROUNDING)
+                        .toString()
+            }
+        }
+
+        return Rates(
+                base = baseCurrency,
+                ratesEnumMap = ratesEnumMap
+        )
     }
 
     fun updateBaseCurrency(adapterPosition: Int) {
@@ -113,9 +145,9 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
      * @return updatableMap with updated values
      */
     @VisibleForTesting
-    fun updateConvertedRates(rates: Rates, updatableMap: LinkedHashMap<CurrenciesEnum, String>, multiplier: String, updateBase: Boolean? = false): LinkedHashMap<CurrenciesEnum, String> {
+    fun updateConvertedRates(rates: Rates, updatableMap: LinkedHashMap<CurrenciesEnum, String>, multiplier: String): LinkedHashMap<CurrenciesEnum, String> {
 
-        if (updateBase == true) updatableMap[baseCurrency] = multiplier
+        updatableMap[baseCurrency] = multiplier
 
         rates.ratesEnumMap.forEach { key, value ->
             updatableMap[key] = BigDecimal(value).multiply(BigDecimal(multiplier)).setScale(Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()

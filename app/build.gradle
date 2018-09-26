@@ -84,6 +84,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.18.3'
     testImplementation "org.mockito:mockito-all:1.10.19"
+    testImplementation "android.arch.core:core-testing:$lifecycle_version"
 
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'

@@ -2,6 +2,7 @@ package com.example.sergey.currencyconverter.ui.rates.adapter
 
 import android.text.Editable
 import android.text.TextWatcher
+import com.example.sergey.currencyconverter.other.kotlinextensions.removeZeroAtStart
 
 /**
  * This class is needed to store and handle only one object of [BaseRateTextWatcher] to avoid different problems
@@ -13,24 +14,26 @@ class BaseRateTextWatcher : TextWatcher {
     var ratesAdapterListener: RatesAdapterListener? = null
 
     var isEnabled = false
-
-    private var oldValue: String = ""
+    var oldValue = ""
 
     override fun afterTextChanged(s: Editable?) {
+        if (!isEnabled) return
+
+        val value = s?.toString()?.removeZeroAtStart() ?: return
+        if (value != s.toString()) {
+            s.replace(0, s.length, value)
+            return
+        }
+
+        if (value == oldValue) return
+        oldValue = value
+
+        ratesAdapterListener?.onItemMultiplierEdit(value)
+
         ratesAdapterListener?.afterTextChanged()
     }
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        if (!isEnabled) return
-
-        var value = s?.removePrefix("0").toString()
-
-        if (value == oldValue) return
-        oldValue = value
-
-        if (value.isEmpty()) value = "0"
-        ratesAdapterListener?.onItemMultiplierEdit(value)
-    }
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 }
