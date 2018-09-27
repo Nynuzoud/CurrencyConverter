@@ -8,10 +8,12 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.sergey.currencyconverter.R
 import com.example.sergey.currencyconverter.di.ComponentsHolder
+import com.example.sergey.currencyconverter.other.kotlinextensions.showSnackbar
 import com.example.sergey.currencyconverter.ui.rates.adapter.BaseRateTextWatcher
 import com.example.sergey.currencyconverter.ui.rates.adapter.RatesAdapter
 import com.example.sergey.currencyconverter.ui.rates.adapter.RatesAdapterListener
 import com.example.sergey.currencyconverter.viewmodel.ViewModelFactory
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
@@ -39,6 +41,13 @@ class MainActivity : AppCompatActivity() {
         ratesAdapter.setHasStableIds(true)
         rates_recycler.adapter = ratesAdapter
         rates_recycler.setHasFixedSize(true)
+
+        viewModel.errorsLiveData.observe(this, Observer {
+            root.showSnackbar(it, R.string.retry, Snackbar.LENGTH_INDEFINITE) {
+                viewModel.startGettingRates()
+            }
+            loading.visibility = View.GONE
+        })
 
         viewModel.convertedRatesLiveData.observe(this, Observer {
             //simple check to avoid unexpected crashes

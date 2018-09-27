@@ -2,6 +2,7 @@ package com.example.sergey.currencyconverter.ui
 
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.MutableLiveData
+import com.example.sergey.currencyconverter.R
 import com.example.sergey.currencyconverter.di.components.AppComponent
 import com.example.sergey.currencyconverter.repository.data.Rates
 import com.example.sergey.currencyconverter.repository.interactor.rates.RatesRepository
@@ -14,7 +15,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.io.IOException
 import java.math.BigDecimal
+import java.net.UnknownHostException
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -24,6 +27,8 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
                                         private val ratesRepository: RatesRepository) : BaseViewModel() {
 
     private var ratesDisposable: Disposable? = null
+
+    val errorsLiveData = MutableLiveData<Int>()
 
     var baseCurrency: CurrenciesEnum = CurrenciesEnum.EUR
     private var _currencyMultiplier: String = Rates.DEFAULT_MULTIPLIER
@@ -67,6 +72,11 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
                     }
                     rates = it
                 }, {
+                    when (it) {
+                        is UnknownHostException -> errorsLiveData.value = R.string.network_error
+                        is IOException -> {} //do nothing
+                        else -> errorsLiveData.value = R.string.unknown_error
+                    }
                     Timber.d(it)
                 })
 
@@ -124,7 +134,8 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
      */
     fun moveCurrencyToTopOfMap(currencyEnum: CurrenciesEnum, currentValue: String) {
 
-        convertedRatesLiveData.value = generateConvertedRatesMap(currencyEnum, convertedRatesLiveData.value ?: return)
+        convertedRatesLiveData.value = generateConvertedRatesMap(currencyEnum, convertedRatesLiveData.value
+                ?: return)
         _currencyMultiplier = currentValue
     }
 

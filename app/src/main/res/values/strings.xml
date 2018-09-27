@@ -3,6 +3,11 @@
 
     <string name="credits">Icons made by Freepik from www.flaticon.com </string>
 
+    <!-- Errors -->
+    <string name="network_error">Network error</string>
+    <string name="unknown_error">Something went wrong</string>
+    <string name="retry">Retry</string>
+
     <!-- Currencies -->
     <string name="currency_aud">Australian Dollar</string>
     <string name="currency_bgn">Bulgarian Lev</string>
