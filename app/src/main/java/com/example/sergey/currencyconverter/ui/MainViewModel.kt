@@ -57,7 +57,7 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
         ratesDisposable = Observable
                 .interval(1, TimeUnit.SECONDS)
                 .flatMap {
-                    ratesRepository.getRatesRepository(baseCurrency)
+                    ratesRepository.getRatesRepository(baseCurrency).toObservable()
                 }
                 .repeat()
                 .subscribeOn(Schedulers.io())
