@@ -8,7 +8,7 @@ import java.lang.reflect.Type
 import java.util.*
 
 /**
- * This class help to deserialize input JSON with a bunch of rates object
+ * This class helps to deserialize input JSON with a bunch of rates object
  * into an object containing [EnumMap] of rates.
  */
 class RatesJsonDeserializer : JsonDeserializer<RatesDTO> {

@@ -8,7 +8,7 @@ import kotlinx.android.synthetic.main.layout_currency_holder.view.*
 
 class RatesViewHolder(itemView: View, private val ratesAdapterListener: RatesAdapterListener?) : RecyclerView.ViewHolder(itemView) {
 
-    var rate: String? = null
+    private var rate: String? = null
 
     fun bind(currencyEnum: CurrenciesEnum?, rate: String?) {
         if (currencyEnum == null) return

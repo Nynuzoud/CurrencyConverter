@@ -11,7 +11,7 @@ class BaseRateTextWatcher : TextWatcher {
 
     var ratesAdapterListener: RatesAdapterListener? = null
 
-    var oldValue = ""
+    private var oldValue = ""
 
     override fun afterTextChanged(s: Editable?) {
 

@@ -9,6 +9,7 @@ import java.util.*
 
 class RatesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    //I'm not using DiffUtil because here all the same data is reused
     private var _data: LinkedHashMap<CurrenciesEnum, String> = LinkedHashMap()
     var data: LinkedHashMap<CurrenciesEnum, String>?
         get() = _data

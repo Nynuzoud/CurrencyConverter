@@ -8,7 +8,7 @@ import com.example.sergey.currencyconverter.repository.data.Rates
 import com.example.sergey.currencyconverter.repository.data.RatesMapper
 import com.example.sergey.currencyconverter.repository.interactor.rates.RatesRepositoryImpl
 import com.example.sergey.currencyconverter.ui.rates.CurrenciesEnum
-import io.reactivex.Observable
+import io.reactivex.Single
 import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Rule
@@ -60,7 +60,7 @@ class RatesRepositoryTest : BaseTest() {
         ratesEmptyMap = RatesDTO(
                 base = CurrenciesEnum.EUR,
                 date = "2018-09-06",
-                ratesMap = EnumMap<CurrenciesEnum, String>(CurrenciesEnum::class.java)
+                ratesMap = EnumMap(CurrenciesEnum::class.java)
         )
 
         rates = RatesMapper().apply(ratesDTO)
@@ -68,7 +68,7 @@ class RatesRepositoryTest : BaseTest() {
 
     @Test
     fun checkRatesRepositoryCompletableFinishesSuccessfully() {
-        `when`(api.getLatestRates("EUR")).thenReturn(Observable.just(ratesDTO))
+        `when`(api.getLatestRates("EUR")).thenReturn(Single.just(ratesDTO))
 
         var result: Rates? = null
         var error: Throwable? = null
@@ -85,7 +85,7 @@ class RatesRepositoryTest : BaseTest() {
 
     @Test
     fun checkRatesRepositoryCompletableFinishesWithError() {
-        `when`(api.getLatestRates(CurrenciesEnum.EUR.name)).thenReturn(Observable.just(ratesEmptyMap))
+        `when`(api.getLatestRates(CurrenciesEnum.EUR.name)).thenReturn(Single.just(ratesEmptyMap))
 
         var result: Rates? = null
         var error: Throwable? = null

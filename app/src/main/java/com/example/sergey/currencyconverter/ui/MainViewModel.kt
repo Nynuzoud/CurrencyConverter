@@ -55,9 +55,9 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
     fun startGettingRates() {
         unsubscribe(ratesDisposable)
         ratesDisposable = Observable
-                .interval(1, TimeUnit.SECONDS)
-                .flatMap {
-                    ratesRepository.getRatesRepository(baseCurrency).toObservable()
+                .interval(1, TimeUnit.SECONDS, Schedulers.computation())
+                .flatMapSingle {
+                    ratesRepository.getRatesRepository(baseCurrency)
                 }
                 .repeat()
                 .subscribeOn(Schedulers.io())
@@ -125,8 +125,8 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
     }
 
     /**
-     * Moving last accessed key to top of the map by re-creating map.
-     * It can't be a LinkedHashMap with access order because it moves key to the bottom of map
+     * Moving last accessed key to top of the map by re-creating the map.
+     * It can't be a LinkedHashMap with access order because it moves key to the bottom of the map
      * In this case we need a map with insertion order because values update every second and reverse map will not efficient way.
      * But re-create map on user's click will be more efficient because user clicks less often
      * @param currencyEnum - [CurrenciesEnum] new base key
@@ -151,7 +151,7 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
 
         updatableMap[baseCurrency] = multiplier
 
-        rates.ratesEnumMap.forEach { key, value ->
+        rates.ratesEnumMap.forEach { (key, value) ->
             updatableMap[key] = BigDecimal(value).multiply(BigDecimal(multiplier)).setScale(Rates.DEFAULT_ROUND_SCALE, Rates.DEFAULT_ROUNDING).toString()
         }
 
@@ -169,7 +169,7 @@ class MainViewModel @Inject constructor(applicationComponent: AppComponent,
         val newRatesMap = LinkedHashMap<CurrenciesEnum, String>(CurrenciesEnum.values().size, 1f)
         newRatesMap[base] = ratesMap[base] ?: _currencyMultiplier
 
-        ratesMap.forEach { key, value ->
+        ratesMap.forEach { (key, value) ->
             newRatesMap[key] = value
         }
 
